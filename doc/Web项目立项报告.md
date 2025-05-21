@@ -38,16 +38,22 @@
 3. **提高协作**：跨职能团队促进了各成员之间的沟通与合作，提升了团队凝聚力。
 4. **早期识别问题**：频繁的反馈和测试有助于尽早发现并解决问题，降低后期修改的成本。
 
-<img src="https://i-blog.csdnimg.cn/blog_migrate/eeeabb59c5ed7cb1e7bd0ee8b1eb7725.png" alt="在这里插入图片描述" style="zoom:50%;" />
+<img src="https://i-blog.csdnimg.cn/blog_migrate/eeeabb59c5ed7cb1e7bd0ee8b1eb7725.png" alt="在这里插入图片描述" style="zoom: 33%;" />
 
 ## 软件说明
 
 ### 软件简介
 
-
+Eldritch Sys是一款非对称权限OA工单提交处置系统。
 
 
 ### 软件功能需求
+
+该系统由需求分析建模的用例图如下：
+
+<img src="C:\Users\stanl\Documents\xwechat_files\wxid_7ui49y30533822_94cf\temp\2025-05\RWTemp\20b4085648487e9b3a9ba8cfd5f8fc08.png" alt="20b4085648487e9b3a9ba8cfd5f8fc08" style="zoom: 50%;" />
+
+### 软件系统概要设计
 
 
 
@@ -57,17 +63,44 @@
 
 #### 前端技术框架
 
+Flutter是由Google开源的应用开发框架，仅通过一套代码库，就能构建精美的、原生平台编译的多平台应用。Flutter 代码可以直接编译成 ARM 或 Intel 平台的机器代码，以及 JavaScript 代码，确保了 Flutter 应用能够拥有原生平台的性能表现。
 
+对本项目而言，Flutter 的灵活性和 Web 平台的强大功能合二为一，Flutter Web 应用通过浏览器为你触达更多、更广泛的用户，为他们提供移动端相同的产品体验；同时也可以不止步于B/S架构，除了Dart语言的学习成本以外，实现跨平台的服务成本是几乎为零的。
+
+![image-20250521163117383](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250521163117383.png)
 
 #### 后端技术框架
 
+FastAPI 是一个用于构建 API 的现代、快速（高性能）的 web 框架，使用 Python 并基于标准的 Python 类型提示。它提供了高性能的框架，可与 **NodeJS** 和 **Go** 并肩的极高性能，是最快的Python框架之一，同时轻量级、API文档完善也提高了开发效率。
 
+样例如下：
+
+```python
+from typing import Union
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
+```
+
+![image-20250521163312712](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250521163312712.png)
+
+同时，它还可以无需额外工作，直接生成网页式的API文档，对开发者友好。
+
+<img src="https://fastapi.tiangolo.com/img/index/index-01-swagger-ui-simple.png" alt="Swagger UI" style="zoom:50%;" />
 
 ## 分工贡献
 
-- 赵励恒：项目管理、软件需求分析(35%)
+- 赵励恒：项目管理、软件需求分析(用例图)、软件技术方案(40%)
 
-- 马展飞：软件技术方案与设计架构(35%)
+- 马展飞：软件设计架构(DFD图)、软件技术方案(35%)
 
-- 李良超：开题答辩PPT、汇报(30%)
+- 李良超：开题答辩PPT、汇报(25%)
 
