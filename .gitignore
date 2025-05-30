@@ -2,3 +2,5 @@ __pychache__
 .idea/
 *.pptx
 *.pdf
+*.pyc
+*.db

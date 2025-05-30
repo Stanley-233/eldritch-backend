@@ -1,20 +1,16 @@
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
+from util.engine import init_db
+from router.auth import auth_router
 
 app = FastAPI()
 
-class LoginRequest(BaseModel):
-    username : str = None
-    password : str = None
+app.include_router(auth_router)
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-@app.post("/login")
-async def login(request: LoginRequest):
-    return request
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    init_db()
+    uvicorn.run(app, host="0.0.0.0", port=23353)
