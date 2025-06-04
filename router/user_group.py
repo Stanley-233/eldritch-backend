@@ -15,9 +15,7 @@ async def get_user_groups(session: Session = Depends(get_session)):
 @user_group_router.get("/user_group/{username}")
 async def get_user(username: str, session: Session = Depends(get_session)):
     """获取指定用户的用户组"""
-    user = session.exec(
-        select(User).where(User.username == username)
-    ).first()
+    user = session.get(User, username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user.groups
@@ -30,9 +28,7 @@ class CreateGroupRequest(BaseModel):
 @user_group_router.post("/user_group/create")
 async def create_group(request: CreateGroupRequest, session: Session = Depends(get_session)):
     """创建用户组"""
-    existing_group = session.exec(
-        select(UserGroup).where(UserGroup.group_name == request.group_name)
-    ).first()
+    existing_group = session.get(UserGroup, request.group_name)
     if existing_group:
         raise HTTPException(status_code=400, detail="Group already exists")
 
@@ -50,9 +46,7 @@ async def create_group(request: CreateGroupRequest, session: Session = Depends(g
 @user_group_router.delete("/user_group/{group_id}")
 async def delete_group(group_id: int, session: Session = Depends(get_session)):
     """删除用户组"""
-    group = session.exec(
-        select(UserGroup).where(UserGroup.group_id == group_id)
-    ).first()
+    group = session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
 
