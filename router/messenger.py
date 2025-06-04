@@ -1,11 +1,12 @@
+from typing import List
+
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlmodel import Session, select
-from typing import List
 
-from util.engine import get_session
-from model.user import User, UserGroup
 from model.message import Message
+from model.user import User, UserGroup
+from util.engine import get_session
 
 messenger_router = APIRouter()
 

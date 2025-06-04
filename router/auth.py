@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from sqlalchemy import Select
 from sqlmodel import Session, select
 
 from model.user import User

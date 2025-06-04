@@ -1,8 +1,7 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, select
-
 # engine.py
-from sqlmodel import SQLModel, create_engine, Session
 from typing import Generator
+
+from sqlmodel import SQLModel, create_engine, Session
 
 DATABASE_URL = "sqlite:///./database.db"
 

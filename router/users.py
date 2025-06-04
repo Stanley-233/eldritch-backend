@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlmodel import Session, select
-from util.engine import get_session
+
 from model.user import User, UserGroup
+from util.engine import get_session
 
 users_router = APIRouter()
 
@@ -10,7 +11,9 @@ users_router = APIRouter()
 async def get_users(session: Session = Depends(get_session)):
     """获取所有用户"""
     users = session.exec(select(User)).all()
-    return users
+    return [
+        {"username": user.username, "is_admin": user.is_admin} for user in users
+    ]
 
 class GroupEditRequest(BaseModel):
     username: str

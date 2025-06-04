@@ -1,7 +1,9 @@
+from typing import List
+
 from sqlmodel import SQLModel, Field, Relationship
-from typing import List, Optional
 
 from model.message import MessageGroupLink, OrderGroupLink
+
 
 class UserGroupLink(SQLModel, table=True):
     username: str = Field(foreign_key="user.username", primary_key=True)

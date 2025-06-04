@@ -1,10 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
-from util.engine import init_db
 
-from router.users import users_router
 from router.auth import auth_router
 from router.user_group import user_group_router
+from router.users import users_router
+from util.engine import init_db
 
 app = FastAPI()
 

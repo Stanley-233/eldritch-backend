@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlmodel import Session, select
-from util.engine import get_session
+
 from model.user import User, UserGroup
+from util.engine import get_session
 
 user_group_router = APIRouter()
 
