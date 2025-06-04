@@ -20,7 +20,6 @@ class Order(SQLModel, table=True):
     assigned_group: Optional["UserGroup"] = Relationship(back_populates="order")
     report: Optional["Report"] = Relationship(back_populates="order")
 
-
 # 工单反馈
 class Report(SQLModel, table=True):
     report_id: int = Field(primary_key=True, index=True)
@@ -33,7 +32,7 @@ class Report(SQLModel, table=True):
     order: Optional["Order"] = Relationship(back_populates="report")
     create_user: Optional["User"] = Relationship(back_populates="report")
 
-# 消息-可见用户组关系
+# 消息-可见用户组关系x
 class MessageAuth(SQLModel, table=True):
     message_id: int = Field(foreign_key="message.message_id", primary_key=True)
     access_group_id: int = Field(foreign_key="usergroup.group_id", primary_key=True)
