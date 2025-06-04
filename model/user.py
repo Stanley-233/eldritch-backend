@@ -1,10 +1,11 @@
 from sqlmodel import SQLModel, Field, Relationship
 from typing import List, Optional
 
-from model.message import Message, MessageAuth
+from model.message import Message, MessageGroupLink, Order, OrderGroupLink
+
 
 class UserGroupLink(SQLModel, table=True):
-    user_id: str = Field(foreign_key="user.username", primary_key=True)
+    username: str = Field(foreign_key="user.username", primary_key=True)
     group_id: int = Field(foreign_key="usergroup.group_id", primary_key=True)
 
 class User(SQLModel, table=True):
@@ -16,6 +17,8 @@ class UserGroup(SQLModel, table=True):
     group_id: int = Field(primary_key=True, index=True)
     group_name: str = None
     group_description: str = None
+    can_send_message: bool = False
 
     users: List["User"] = Relationship(back_populates="groups", link_model=UserGroupLink)
-    messages: List["Message"] = Relationship(back_populates="groups", link_model=MessageAuth)
+    messages: List["Message"] = Relationship(back_populates="access_groups", link_model=MessageGroupLink)
+    orders: List["Order"] = Relationship(back_populates="assigned_groups", link_model=OrderGroupLink)

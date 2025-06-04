@@ -20,12 +20,12 @@ async def get_user(username: str, session: Session = Depends(get_session)):
     ).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user_groups = user.groups
-    return {"username": user.username, "groups": [group.group_name for group in user_groups]}
+    return user.groups
 
 class CreateGroupRequest(BaseModel):
     group_name: str
     group_description: str
+    can_send_message: bool
 
 @user_group_router.post("/user_group/create")
 async def create_group(request: CreateGroupRequest, session: Session = Depends(get_session)):
@@ -38,7 +38,8 @@ async def create_group(request: CreateGroupRequest, session: Session = Depends(g
 
     new_group = UserGroup(
         group_name=request.group_name,
-        group_description=request.group_description
+        group_description=request.group_description,
+        can_send_message=request.can_send_message
     )
     session.add(new_group)
     session.commit()
