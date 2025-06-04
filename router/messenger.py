@@ -18,6 +18,32 @@ class MessageRequest(BaseModel):
 @messenger_router.post("/message/create")
 async def create_message(request: MessageRequest, session: Session = Depends(get_session)):
     """创建消息"""
+    user = session.exec(select(User).where(User.username == request.username))
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not any(group.can_send_message for group in user.groups):
+        raise HTTPException(status_code=403, detail="User does not have permission to send messages")
+
+    # 验证Access Groups是否正确
+    access_groups = []
+    for group_id in request.access_group_ids:
+        group = session.exec(select(UserGroup).where(UserGroup.group_id == group_id))
+        if not group:
+            raise HTTPException(status_code=405, detail=f"Group with ID {group_id} not found")
+        access_groups.append(group)
+
+    new_message = Message(
+        title=request.title,
+        content=request.content,
+        created_by=user,
+        access_groups=access_groups
+    )
+    session.add(new_message)
+    session.commit()
+    session.refresh(new_message)
+
+    return {"message": "Message created successfully", "message_id": new_message.message_id}
 
 
 class GetMessageRequest(BaseModel):
@@ -25,9 +51,7 @@ class GetMessageRequest(BaseModel):
 @messenger_router.post("/message/get")
 async def get_messages(request: GetMessageRequest, session: Session = Depends(get_session)):
     """获取用户消息"""
-    user = session.exec(
-        select(User).where(User.username == request.username)
-    ).first()
+    user = session.exec(select(User).where(User.username == request.username))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
