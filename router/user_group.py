@@ -29,7 +29,9 @@ class CreateGroupRequest(BaseModel):
 @user_group_router.post("/user_group/create")
 async def create_group(request: CreateGroupRequest, session: Session = Depends(get_session)):
     """创建用户组"""
-    existing_group = session.get(UserGroup, request.group_name)
+    existing_group = session.exec(
+        select(UserGroup).where(UserGroup.group_name == request.group_name)
+    ).first()
     if existing_group:
         raise HTTPException(status_code=400, detail="Group already exists")
 

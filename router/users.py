@@ -22,15 +22,11 @@ class GroupEditRequest(BaseModel):
 @users_router.post("/users/add_group")
 async def add_group(request: GroupEditRequest, session: Session = Depends(get_session)):
     """"添加用户到用户组"""
-    user = session.exec(
-        select(User).where(User.username == request.username)
-    ).first()
+    user = session.get(User, request.username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    group = session.exec(
-        select(UserGroup).where(UserGroup.group_id == request.group_id)
-    ).first()
+    group = session.get(UserGroup, request.group_id)
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")
 
@@ -38,7 +34,6 @@ async def add_group(request: GroupEditRequest, session: Session = Depends(get_se
         raise HTTPException(status_code=400, detail="User already in this group")
 
     user.groups.append(group)
-    group.users.append(user)
     session.add_all([user, group])
     session.commit()
     session.refresh(user)
@@ -48,15 +43,11 @@ async def add_group(request: GroupEditRequest, session: Session = Depends(get_se
 @users_router.post("/users/remove_group")
 async def remove_group(request: GroupEditRequest, session: Session = Depends(get_session)):
     """从用户组中移除用户"""
-    user = session.exec(
-        select(User).where(User.username == request.username)
-    ).first()
+    user = session.get(User, request.username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    group = session.exec(
-        select(UserGroup).where(UserGroup.group_id == request.group_id)
-    ).first()
+    group = session.get(UserGroup, request.group_id)
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")
 
@@ -64,7 +55,6 @@ async def remove_group(request: GroupEditRequest, session: Session = Depends(get
         raise HTTPException(status_code=400, detail="User not in this group")
 
     user.groups.remove(group)
-    group.users.remove(user)
     session.add_all([group, user])
     session.commit()
     session.refresh(user)
