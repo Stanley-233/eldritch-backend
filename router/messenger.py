@@ -20,7 +20,7 @@ class MessageRequest(BaseModel):
 @messenger_router.post("/message/create")
 async def create_message(request: MessageRequest, session: Session = Depends(get_session)):
     """创建消息"""
-    user = session.get(User, request.username)
+    user = session.get(User, request.created_by)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -30,17 +30,17 @@ async def create_message(request: MessageRequest, session: Session = Depends(get
     # 验证Access Groups是否正确
     access_groups = []
     for group_id in request.access_group_ids:
-        for group in user.groups:
-            if group.group_id == group_id:
-                raise HTTPException(status_code=405, detail=f"Group with ID {group_id} not found")
-            access_groups.append(group)
+        group = session.get(UserGroup, group_id)
+        if not group:
+            raise HTTPException(status_code=404, detail=f"No such group with id {group_id} found")
+        access_groups.append(group)
 
     new_message = Message(
         title=request.title,
         content=request.content,
         created_by=user,
         access_groups=access_groups,
-        create_at=datetime.datetime.now()
+        created_at=datetime.datetime.now()
     )
     session.add(new_message)
     session.commit()
@@ -73,7 +73,7 @@ async def get_messages(request: GetMessageRequest, session: Session = Depends(ge
             "title": msg.title,
             "content": msg.content,
             "created_by": msg.created_by.username if msg.created_by else None,
-            "created_at": msg.create_at
+            "created_at": msg.created_at if msg.created_by else None,
         } for msg in messages
     ]
     return message_list
