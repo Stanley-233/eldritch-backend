@@ -4,7 +4,6 @@ from sqlmodel import SQLModel, Field, Relationship
 
 from model.message import MessageGroupLink, OrderGroupLink
 
-
 class UserGroupLink(SQLModel, table=True):
     username: str = Field(foreign_key="user.username", primary_key=True)
     group_id: int = Field(foreign_key="usergroup.group_id", primary_key=True)
