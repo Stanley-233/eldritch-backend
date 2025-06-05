@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -38,7 +39,8 @@ async def create_message(request: MessageRequest, session: Session = Depends(get
         title=request.title,
         content=request.content,
         created_by=user,
-        access_groups=access_groups
+        access_groups=access_groups,
+        create_at=datetime.datetime.now()
     )
     session.add(new_message)
     session.commit()
@@ -70,7 +72,8 @@ async def get_messages(request: GetMessageRequest, session: Session = Depends(ge
             "message_id": msg.message_id,
             "title": msg.title,
             "content": msg.content,
-            "created_by": msg.created_by.username if msg.created_by else None
+            "created_by": msg.created_by.username if msg.created_by else None,
+            "created_at": msg.create_at
         } for msg in messages
     ]
     return message_list
