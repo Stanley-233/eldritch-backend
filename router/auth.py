@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -21,8 +21,8 @@ async def login(request: AuthRequest, session: Session = Depends(get_session)):
     if user.password != request.password:
         raise HTTPException(status_code=403, detail="Wrong Password")
     if user.is_admin:
-        return {"message": "Admin login successful"}, 201
-    return {"message": "Login successful"}, 200
+        raise HTTPException(status_code=201, detail="Admin Rights")
+    return {"message": "Login successful"}
 
 @auth_router.post("/auth/register")
 async def register(request: AuthRequest, session: Session = Depends(get_session)):
@@ -44,5 +44,5 @@ async def register(request: AuthRequest, session: Session = Depends(get_session)
     session.commit()
     session.refresh(new_user)
     if new_user.is_admin:
-        return {"message": "Admin user created successfully"}, 201
+        raise HTTPException(status_code=201, detail="Admin Rights")
     return {"message": "User created successfully"}, 200

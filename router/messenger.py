@@ -19,7 +19,7 @@ class MessageRequest(BaseModel):
 @messenger_router.post("/message/create")
 async def create_message(request: MessageRequest, session: Session = Depends(get_session)):
     """创建消息"""
-    user = session.exec(select(User).where(User.username == request.username))
+    user = session.get(User, request.username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -29,10 +29,10 @@ async def create_message(request: MessageRequest, session: Session = Depends(get
     # 验证Access Groups是否正确
     access_groups = []
     for group_id in request.access_group_ids:
-        group = session.exec(select(UserGroup).where(UserGroup.group_id == group_id))
-        if not group:
-            raise HTTPException(status_code=405, detail=f"Group with ID {group_id} not found")
-        access_groups.append(group)
+        for group in user.groups:
+            if group.group_id == group_id:
+                raise HTTPException(status_code=405, detail=f"Group with ID {group_id} not found")
+            access_groups.append(group)
 
     new_message = Message(
         title=request.title,
@@ -52,9 +52,12 @@ class GetMessageRequest(BaseModel):
 @messenger_router.post("/message/get")
 async def get_messages(request: GetMessageRequest, session: Session = Depends(get_session)):
     """获取用户消息"""
-    user = session.exec(select(User).where(User.username == request.username))
+    user = session.get(User, request.username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.groups:
+        raise HTTPException(status_code=403, detail="User does not belong to any groups")
 
     # Relationship 获取 Messages
     messages = []
