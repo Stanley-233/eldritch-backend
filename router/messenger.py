@@ -66,6 +66,12 @@ async def get_messages(request: GetMessageRequest, session: Session = Depends(ge
     for group in user.groups:
         messages.extend(group.messages)
     messages = {msg.message_id: msg for msg in messages}.values()
+    create_messages = session.exec(
+        select(Message).where(Message.created_by == user)
+    ).all()
+    messages = list(messages) + create_messages
+    # 去重
+    messages = list({msg.message_id: msg for msg in messages}.values())
 
     message_list = [
         {
