@@ -176,8 +176,7 @@ async def get_report(order_id: int, session: Session = Depends(get_session)):
         "report_id": order.report.report_id,
         "content": order.report.content,
         "created_by": order.report.c_by_username,
-        "created_at": order.report.created_at,
-        "status": order.report.status
+        "created_at": order.report.created_at
     }
     return report
 
