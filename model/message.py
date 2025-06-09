@@ -16,15 +16,13 @@ class Order(SQLModel, table=True):
     order_id: int = Field(primary_key=True, index=True)
     title: str = Field(nullable=False)
     content: str = Field(nullable=False)
-    status: str = Field(default="open")  # 状态：open, in_progress, reject, closed
-
+    status: str = Field(default="open")  # 状态：open, reject, closed
     assigned_groups: List["UserGroup"] = Relationship(back_populates="orders", link_model=OrderGroupLink)
     created_at: datetime.datetime = Field(nullable=False)
     updated_at: datetime.datetime = Field(nullable=False)
-    # 绑定的反馈
     c_by_username: str = Field(foreign_key="user.username", nullable=False)
     created_by: Optional["User"] = Relationship()
-
+    # 绑定的反馈
     report: Optional["Report"] = Relationship(back_populates="order")
 
 # 工单反馈
@@ -47,3 +45,9 @@ class Message(SQLModel, table=True):
     created_by: Optional["User"] = Relationship()
     access_groups: List["UserGroup"] = Relationship(back_populates="messages", link_model=MessageGroupLink)
     created_at: datetime.datetime = Field(nullable=False)
+
+class Test(SQLModel, table=True):
+    test_id: int = Field(primary_key=True, index=True)
+    name: str = Field(nullable=False)
+    description: str = Field(nullable=False)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now, nullable=False)
