@@ -107,7 +107,7 @@ async def get_reports(group_id: id, session: Session = Depends(get_session)):
     ]
     return orders_list
 
-@order_router.get("/order/group_id={group_id}/done")
+@order_router.get("/order/group_id={group_id}/reject")
 async def get_done_reports(group_id: int, session: Session = Depends(get_session)):
     """获取指定用户组已处理的工单"""
     group = session.get(UserGroup, group_id)
@@ -127,7 +127,31 @@ async def get_done_reports(group_id: int, session: Session = Depends(get_session
     ]
     # 过滤掉未处理的工单
     orders_list = [
-        order for order in orders_list if order["status"] in ["reject", "closed"]
+        order for order in orders_list if order["status"] == "reject"
+    ]
+    return orders_list
+
+@order_router.get("/order/group_id={group_id}/closed")
+async def get_done_reports(group_id: int, session: Session = Depends(get_session)):
+    """获取指定用户组已处理的工单"""
+    group = session.get(UserGroup, group_id)
+    if not group:
+        raise HTTPException(status_code=404, detail="UserGroup not found")
+
+    orders = group.orders
+    orders_list = [
+        {
+            "order_id": order.order_id,
+            "title": order.title,
+            "content": order.content,
+            "created_by": order.c_by_username,
+            "created_at": order.created_at,
+            "status": order.status
+        } for order in orders
+    ]
+    # 过滤掉未处理的工单
+    orders_list = [
+        order for order in orders_list if order["status"] == "closed"
     ]
     return orders_list
 
@@ -187,6 +211,7 @@ async def create_order(request: OrderRequest, session: Session = Depends(get_ses
 class ReportRequest(BaseModel):
     order_id: int
     content: str
+    status: str = "closed"
     created_by: str
 
 @order_router.post("/order/report/create")
@@ -208,7 +233,9 @@ async def create_report(request: ReportRequest, session: Session = Depends(get_s
         order_id=order.order_id,
         order=order
     )
+    order.status = request.status
     session.add(new_report)
+    session.add(order)
     session.commit()
     session.refresh(new_report)
 
