@@ -5,7 +5,6 @@ from sqlmodel import Session, select
 from model.user import User
 from util.engine import get_session
 
-
 class AuthRequest(BaseModel):
     username: str
     password: str

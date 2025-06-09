@@ -51,6 +51,7 @@ async def create_message(request: MessageRequest, session: Session = Depends(get
 
 class GetMessageRequest(BaseModel):
     username: str
+
 @messenger_router.post("/message/get")
 async def get_messages(request: GetMessageRequest, session: Session = Depends(get_session)):
     """获取用户消息"""
@@ -72,7 +73,6 @@ async def get_messages(request: GetMessageRequest, session: Session = Depends(ge
     messages = list(messages) + create_messages
     # 去重
     messages = list({msg.message_id: msg for msg in messages}.values())
-
     message_list = [
         {
             "message_id": msg.message_id,

@@ -107,7 +107,7 @@ async def get_orders_assigned_open(username: str, session: Session = Depends(get
         order for order in orders_list if order["status"] == "open"
     ]
     # 过滤掉重复的工单
-    final_orders = list({order.message_id: order for order in orders_list}.values())
+    final_orders = list({order["order_id"]: order for order in orders_list}.values())
     return final_orders
 
 @order_router.get("/order/assigned_user={username}/reject")
@@ -134,7 +134,7 @@ async def get_orders_assigned_reject(username: str, session: Session = Depends(g
         order for order in orders_list if order["status"] == "reject"
     ]
     # 过滤掉重复的工单
-    final_orders = list({order.message_id: order for order in orders_list}.values())
+    final_orders = list({order["order_id"]: order for order in orders_list}.values())
     return final_orders
 
 @order_router.get("/order/assigned_user={username}/closed")
@@ -161,7 +161,7 @@ async def get_orders_assigned_closed(username: str, session: Session = Depends(g
         order for order in orders_list if order["status"] == "closed"
     ]
     # 过滤掉重复的工单
-    final_orders = list({order.message_id: order for order in orders_list}.values())
+    final_orders = list({order["order_id"]: order for order in orders_list}.values())
     return final_orders
 
 @order_router.get("/order/order_id={order_id}/report")

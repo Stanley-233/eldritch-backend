@@ -23,7 +23,6 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(user_group_router)
 app.include_router(messenger_router)
-
 app.include_router(order_router)
 
 @app.get("/")

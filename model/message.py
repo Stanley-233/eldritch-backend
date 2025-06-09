@@ -45,9 +45,3 @@ class Message(SQLModel, table=True):
     created_by: Optional["User"] = Relationship()
     access_groups: List["UserGroup"] = Relationship(back_populates="messages", link_model=MessageGroupLink)
     created_at: datetime.datetime = Field(nullable=False)
-
-class Test(SQLModel, table=True):
-    test_id: int = Field(primary_key=True, index=True)
-    name: str = Field(nullable=False)
-    description: str = Field(nullable=False)
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now, nullable=False)
