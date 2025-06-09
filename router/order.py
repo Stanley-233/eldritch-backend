@@ -11,8 +11,8 @@ from util.engine import get_session
 
 order_router = APIRouter()
 
-@order_router.get("/order/user={username}/open")
-async def get_orders(username: str, session: Session = Depends(get_session)):
+@order_router.get("/order/create_user={username}/open")
+async def get_orders_open(username: str, session: Session = Depends(get_session)):
     """获取指定用户创建的open工单"""
     user = session.get(User, username)
     if not user:
@@ -35,7 +35,7 @@ async def get_orders(username: str, session: Session = Depends(get_session)):
     ]
     return orders_list
 
-@order_router.get("/order/user={username}/reject")
+@order_router.get("/order/create_user={username}/reject")
 async def get_orders_reject(username: str, session: Session = Depends(get_session)):
     """获取指定用户创建被拒绝工单"""
     user = session.get(User, username)
@@ -59,7 +59,7 @@ async def get_orders_reject(username: str, session: Session = Depends(get_sessio
     ]
     return orders_list
 
-@order_router.get("/order/user={username}/closed")
+@order_router.get("/order/create_user={username}/closed")
 async def get_orders_closed(username: str, session: Session = Depends(get_session)):
     """获取指定用户创建已关闭工单"""
     user = session.get(User, username)
@@ -83,77 +83,86 @@ async def get_orders_closed(username: str, session: Session = Depends(get_sessio
     ]
     return orders_list
 
-@order_router.get("/order/group_id={group_id}/open")
-async def get_reports(group_id: id, session: Session = Depends(get_session)):
-    """获取指定用户组被分配且未处理的工单"""
-    group = session.get(UserGroup, group_id)
-    if not group:
-        raise HTTPException(status_code=404, detail="UserGroup not found")
-
-    orders = group.orders
-    orders_list = [
-        {
-            "order_id": order.order_id,
-            "title": order.title,
-            "content": order.content,
-            "created_by": order.c_by_username,
-            "created_at": order.created_at,
-            "status": order.status
-        } for order in orders
-    ]
-    # 过滤掉已处理(reject和closed)的工单
+@order_router.get("/order/assigned_user={username}/open")
+async def get_orders_assigned_open(username: str, session: Session = Depends(get_session)):
+    """获取指定用户被分配且未处理的工单"""
+    user = session.get(User, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    groups = user.groups
+    orders_list = []
+    for group in groups:
+        orders = group.orders
+        orders_list.extend([
+            {
+                "order_id": order.order_id,
+                "title": order.title,
+                "content": order.content,
+                "created_by": order.c_by_username,
+                "created_at": order.created_at,
+                "status": order.status
+            } for order in orders
+        ])
     orders_list = [
         order for order in orders_list if order["status"] == "open"
     ]
-    return orders_list
+    # 过滤掉重复的工单
+    final_orders = list({order.message_id: order for order in orders_list}.values())
+    return final_orders
 
-@order_router.get("/order/group_id={group_id}/reject")
-async def get_done_reports(group_id: int, session: Session = Depends(get_session)):
-    """获取指定用户组已处理的工单"""
-    group = session.get(UserGroup, group_id)
-    if not group:
-        raise HTTPException(status_code=404, detail="UserGroup not found")
-
-    orders = group.orders
-    orders_list = [
-        {
-            "order_id": order.order_id,
-            "title": order.title,
-            "content": order.content,
-            "created_by": order.c_by_username,
-            "created_at": order.created_at,
-            "status": order.status
-        } for order in orders
-    ]
-    # 过滤掉未处理的工单
+@order_router.get("/order/assigned_user={username}/reject")
+async def get_orders_assigned_reject(username: str, session: Session = Depends(get_session)):
+    """获取指定用户被分配且已拒绝的工单"""
+    user = session.get(User, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    groups = user.groups
+    orders_list = []
+    for group in groups:
+        orders = group.orders
+        orders_list.extend([
+            {
+                "order_id": order.order_id,
+                "title": order.title,
+                "content": order.content,
+                "created_by": order.c_by_username,
+                "created_at": order.created_at,
+                "status": order.status
+            } for order in orders
+        ])
     orders_list = [
         order for order in orders_list if order["status"] == "reject"
     ]
-    return orders_list
+    # 过滤掉重复的工单
+    final_orders = list({order.message_id: order for order in orders_list}.values())
+    return final_orders
 
-@order_router.get("/order/group_id={group_id}/closed")
-async def get_done_reports(group_id: int, session: Session = Depends(get_session)):
-    """获取指定用户组已处理的工单"""
-    group = session.get(UserGroup, group_id)
-    if not group:
-        raise HTTPException(status_code=404, detail="UserGroup not found")
-
-    orders = group.orders
-    orders_list = [
-        {
-            "order_id": order.order_id,
-            "title": order.title,
-            "content": order.content,
-            "created_by": order.c_by_username,
-            "created_at": order.created_at,
-            "status": order.status
-        } for order in orders
-    ]
-    # 过滤掉未处理的工单
+@order_router.get("/order/assigned_user={username}/closed")
+async def get_orders_assigned_closed(username: str, session: Session = Depends(get_session)):
+    """获取指定用户被分配且已关闭的工单"""
+    user = session.get(User, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    groups = user.groups
+    orders_list = []
+    for group in groups:
+        orders = group.orders
+        orders_list.extend([
+            {
+                "order_id": order.order_id,
+                "title": order.title,
+                "content": order.content,
+                "created_by": order.c_by_username,
+                "created_at": order.created_at,
+                "status": order.status
+            } for order in orders
+        ])
     orders_list = [
         order for order in orders_list if order["status"] == "closed"
     ]
-    return orders_list
+    # 过滤掉重复的工单
+    final_orders = list({order.message_id: order for order in orders_list}.values())
+    return final_orders
 
 @order_router.get("/order/order_id={order_id}/report")
 async def get_report(order_id: int, session: Session = Depends(get_session)):
