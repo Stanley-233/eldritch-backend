@@ -4,11 +4,12 @@ from sqlmodel import Session, select
 
 from model.user import User, UserGroup
 from util.engine import get_session
+from util.security import get_current_user
 
 users_router = APIRouter()
 
 @users_router.get("/users/")
-async def get_users(session: Session = Depends(get_session)):
+async def get_users(session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取所有用户"""
     users = session.exec(select(User)).all()
     return [
@@ -20,12 +21,8 @@ class GroupEditRequest(BaseModel):
     group_id: int
 
 @users_router.post("/users/add_group")
-async def add_group(request: GroupEditRequest, session: Session = Depends(get_session)):
+async def add_group(request: GroupEditRequest, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """"添加用户到用户组"""
-    user = session.get(User, request.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
     group = session.get(UserGroup, request.group_id)
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")
@@ -41,12 +38,8 @@ async def add_group(request: GroupEditRequest, session: Session = Depends(get_se
     return {"message": "User added to group successfully"}
 
 @users_router.post("/users/remove_group")
-async def remove_group(request: GroupEditRequest, session: Session = Depends(get_session)):
+async def remove_group(request: GroupEditRequest, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """从用户组中移除用户"""
-    user = session.get(User, request.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
     group = session.get(UserGroup, request.group_id)
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")

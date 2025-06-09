@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel
 from sqlmodel import Session, select
+from starlette.responses import JSONResponse
 
 from model.user import User
 from util.engine import get_session
+from util.security import create_token
 
 class AuthRequest(BaseModel):
     username: str
@@ -19,9 +21,10 @@ async def login(request: AuthRequest, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="No User")
     if user.password != request.password:
         raise HTTPException(status_code=403, detail="Wrong Password")
+    token = create_token(user)
     if user.is_admin:
-        raise HTTPException(status_code=201, detail="Admin Rights")
-    return {"message": "Login successful"}
+        return JSONResponse(status_code=201, content={"message": "Admin Rights", "token": token})
+    return {"message": "Login successful", "token": token}
 
 @auth_router.post("/auth/register")
 async def register(request: AuthRequest, session: Session = Depends(get_session)):
@@ -42,6 +45,7 @@ async def register(request: AuthRequest, session: Session = Depends(get_session)
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
+    token = create_token(new_user)
     if new_user.is_admin:
-        raise HTTPException(status_code=201, detail="Admin Rights")
-    return {"message": "User created successfully"}, 200
+        return JSONResponse(status_code=201, content={"message": "Admin Rights", "token": token})
+    return {"message": "Register successful", "token": token}

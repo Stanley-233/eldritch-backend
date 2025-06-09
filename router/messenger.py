@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from model.message import Message
 from model.user import User, UserGroup
 from util.engine import get_session
+from util.security import get_current_user
 
 messenger_router = APIRouter()
 
@@ -18,12 +19,10 @@ class MessageRequest(BaseModel):
     access_group_ids: List[int]
 
 @messenger_router.post("/message/create")
-async def create_message(request: MessageRequest, session: Session = Depends(get_session)):
+async def create_message(request: MessageRequest,
+                         session: Session = Depends(get_session),
+                         user: User = Depends(get_current_user)):
     """创建消息"""
-    user = session.get(User, request.created_by)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
     if not any(group.can_send_message for group in user.groups):
         raise HTTPException(status_code=403, detail="User does not have permission to send messages")
 
@@ -53,16 +52,19 @@ class GetMessageRequest(BaseModel):
     username: str
 
 @messenger_router.post("/message/get")
-async def get_messages(request: GetMessageRequest, session: Session = Depends(get_session)):
-    """获取用户消息"""
-    user = session.get(User, request.username)
+async def get_messages(
+        request: GetMessageRequest,
+        session: Session = Depends(get_session),
+        user: User = Depends(get_current_user)  # 只有登录且 token 有效的用户才能访问
+):
+    """获取用户消息，只有带token认证的用户可访问"""
+    # 以下逻辑保持不变，可根据业务需求进一步调整
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     if not user.groups:
         raise HTTPException(status_code=403, detail="User does not belong to any groups")
 
-    # Relationship 获取 Messages
     messages = []
     for group in user.groups:
         messages.extend(group.messages)
@@ -71,7 +73,6 @@ async def get_messages(request: GetMessageRequest, session: Session = Depends(ge
         select(Message).where(Message.created_by == user)
     ).all()
     messages = list(messages) + create_messages
-    # 去重
     messages = list({msg.message_id: msg for msg in messages}.values())
     message_list = [
         {

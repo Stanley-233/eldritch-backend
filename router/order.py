@@ -8,15 +8,13 @@ from sqlmodel import Session, select
 from model.message import Order, Report
 from model.user import User, UserGroup
 from util.engine import get_session
+from util.security import get_current_user
 
 order_router = APIRouter()
 
 @order_router.get("/order/create_user={username}/open")
-async def get_orders_open(username: str, session: Session = Depends(get_session)):
+async def get_orders_open(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户创建的open工单"""
-    user = session.get(User, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     orders = session.exec(
         select(Order).where(Order.c_by_username == username)
     ).all()
@@ -36,11 +34,8 @@ async def get_orders_open(username: str, session: Session = Depends(get_session)
     return orders_list
 
 @order_router.get("/order/create_user={username}/reject")
-async def get_orders_reject(username: str, session: Session = Depends(get_session)):
+async def get_orders_reject(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户创建被拒绝工单"""
-    user = session.get(User, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     orders = session.exec(
         select(Order).where(Order.c_by_username == username)
     ).all()
@@ -60,11 +55,8 @@ async def get_orders_reject(username: str, session: Session = Depends(get_sessio
     return orders_list
 
 @order_router.get("/order/create_user={username}/closed")
-async def get_orders_closed(username: str, session: Session = Depends(get_session)):
+async def get_orders_closed(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户创建已关闭工单"""
-    user = session.get(User, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     orders = session.exec(
         select(Order).where(Order.c_by_username == username)
     ).all()
@@ -84,11 +76,8 @@ async def get_orders_closed(username: str, session: Session = Depends(get_sessio
     return orders_list
 
 @order_router.get("/order/assigned_user={username}/open")
-async def get_orders_assigned_open(username: str, session: Session = Depends(get_session)):
+async def get_orders_assigned_open(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户被分配且未处理的工单"""
-    user = session.get(User, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     groups = user.groups
     orders_list = []
     for group in groups:
@@ -111,11 +100,8 @@ async def get_orders_assigned_open(username: str, session: Session = Depends(get
     return final_orders
 
 @order_router.get("/order/assigned_user={username}/reject")
-async def get_orders_assigned_reject(username: str, session: Session = Depends(get_session)):
+async def get_orders_assigned_reject(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户被分配且已拒绝的工单"""
-    user = session.get(User, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     groups = user.groups
     orders_list = []
     for group in groups:
@@ -138,11 +124,8 @@ async def get_orders_assigned_reject(username: str, session: Session = Depends(g
     return final_orders
 
 @order_router.get("/order/assigned_user={username}/closed")
-async def get_orders_assigned_closed(username: str, session: Session = Depends(get_session)):
+async def get_orders_assigned_closed(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户被分配且已关闭的工单"""
-    user = session.get(User, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     groups = user.groups
     orders_list = []
     for group in groups:
@@ -165,7 +148,7 @@ async def get_orders_assigned_closed(username: str, session: Session = Depends(g
     return final_orders
 
 @order_router.get("/order/order_id={order_id}/report")
-async def get_report(order_id: int, session: Session = Depends(get_session)):
+async def get_report(order_id: int, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定工单绑定的报告"""
     order = session.get(Order, order_id)
     if not order:
@@ -188,12 +171,8 @@ class OrderRequest(BaseModel):
     created_by: str
 
 @order_router.post("/order/create")
-async def create_order(request: OrderRequest, session: Session = Depends(get_session)):
+async def create_order(request: OrderRequest, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """创建工单"""
-    user = session.get(User, request.created_by)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
     assigned_groups = []
     for group_id in request.assigned_groups:
         group = session.get(UserGroup, group_id)
@@ -223,12 +202,8 @@ class ReportRequest(BaseModel):
     created_by: str
 
 @order_router.post("/order/report/create")
-async def create_report(request: ReportRequest, session: Session = Depends(get_session)):
+async def create_report(request: ReportRequest, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """创建工单反馈"""
-    user = session.get(User, request.created_by)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
     order = session.get(Order, request.order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
