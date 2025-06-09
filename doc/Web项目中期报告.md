@@ -19,7 +19,7 @@
 
 划分为四模块，对未来进度进行安排
 
-![0ad518157c1495dca4f0495e351abca2](C:\Users\stanl\Documents\xwechat_files\wxid_7ui49y30533822_94cf\temp\2025-06\RWTemp\0ad518157c1495dca4f0495e351abca2.png)
+![image-20250606105914057](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250606105914057.png)
 
 ## 项目进展
 
@@ -38,17 +38,33 @@
 
 ### ER图
 
-![10e9dac96cd1008b2a0bee64c35ce692](C:\Users\stanl\Documents\xwechat_files\wxid_7ui49y30533822_94cf\temp\2025-06\RWTemp\10e9dac96cd1008b2a0bee64c35ce692.png)
+![er](D:\GitHub\eldritch-backend\doc\er.png)
 
 ### API调试接口
 
 采用ApiFox进行API调试。
 
-![fb600259de5a5409373ebf67d93f7f06](C:\Users\stanl\Documents\xwechat_files\wxid_7ui49y30533822_94cf\temp\2025-06\RWTemp\fb600259de5a5409373ebf67d93f7f06.png)
+![apifox](D:\GitHub\eldritch-backend\doc\apifox.png)
 
 ### 前端界面
 
+#### 登录注册
 
+![image-20250606114041572](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250606114041572.png)
+
+#### 消息(下达的任务)界面
+
+![image-20250606114111696](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250606114111696.png)
+
+#### 系统管理界面
+
+![image-20250606114125989](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250606114125989.png)
+
+#### 用户组、用户管理界面
+
+![image-20250606114148424](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250606114148424.png)
+
+![image-20250606114206616](C:\Users\stanl\AppData\Roaming\Typora\typora-user-images\image-20250606114206616.png)
 
 ## 阶段总结
 
