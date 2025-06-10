@@ -17,7 +17,8 @@ async def get_user_groups(session: Session = Depends(get_session), user: User = 
 @user_group_router.get("/user_group/{username}")
 async def get_user(username: str, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     """获取指定用户的用户组"""
-    return user.groups
+    user_get = session.get(User, username)
+    return user_get.groups
 
 class CreateGroupRequest(BaseModel):
     group_name: str

@@ -32,8 +32,7 @@ def decode_token(token: str):
 
 def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
-        session: Session = Depends(get_session)
-):
+        session: Session = Depends(get_session)):
     token = credentials.credentials
     payload = decode_token(token)
     username = payload.get("sub")

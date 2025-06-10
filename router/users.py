@@ -21,8 +21,11 @@ class GroupEditRequest(BaseModel):
     group_id: int
 
 @users_router.post("/users/add_group")
-async def add_group(request: GroupEditRequest, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
+async def add_group(request: GroupEditRequest,
+                    session: Session = Depends(get_session),
+                    user: User = Depends(get_current_user)):
     """"添加用户到用户组"""
+    user_modify = session.get(User, request.username)
     group = session.get(UserGroup, request.group_id)
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")
@@ -30,27 +33,30 @@ async def add_group(request: GroupEditRequest, session: Session = Depends(get_se
     if group in user.groups:
         raise HTTPException(status_code=400, detail="User already in this group")
 
-    user.groups.append(group)
-    session.add_all([user, group])
+    user_modify.groups.append(group)
+    session.add_all([user_modify, group])
     session.commit()
-    session.refresh(user)
+    session.refresh(user_modify)
 
     return {"message": "User added to group successfully"}
 
 @users_router.post("/users/remove_group")
-async def remove_group(request: GroupEditRequest, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
+async def remove_group(request: GroupEditRequest,
+                       session: Session = Depends(get_session),
+                       user: User = Depends(get_current_user)):
     """从用户组中移除用户"""
+    user_modify = session.get(User, request.username)
     group = session.get(UserGroup, request.group_id)
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")
 
-    if group not in user.groups:
+    if group not in user_modify.groups:
         raise HTTPException(status_code=400, detail="User not in this group")
 
-    user.groups.remove(group)
-    session.add_all([group, user])
+    user_modify.groups.remove(group)
+    session.add_all([group, user_modify])
     session.commit()
-    session.refresh(user)
+    session.refresh(user_modify)
 
     return {"message": "User removed from group successfully"}
 
