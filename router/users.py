@@ -30,7 +30,7 @@ async def add_group(request: GroupEditRequest,
     if not group:
         raise HTTPException(status_code=406, detail="Group not found")
 
-    if group in user.groups:
+    if group in user_modify.groups:
         raise HTTPException(status_code=400, detail="User already in this group")
 
     user_modify.groups.append(group)
